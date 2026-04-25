@@ -82,6 +82,6 @@ report_complete()
 | 🤗 HuggingFace Space | [bio-synthetica-pro](https://huggingface.co/spaces/Prantik-07/bio-synthetica-pro) |
 | 📓 Colab Notebook | [train_grpo.ipynb](https://github.com/Prantik-07/bio-synthetica/blob/main/train_grpo.ipynb) |
 | 💻 GitHub | [Prantik-07/bio-synthetica](https://github.com/Prantik-07/bio-synthetica) |
-| 🎬 YouTube Demo | [ADD LINK] |
+| 📝 Writeup (story) | [writeup.md](https://github.com/Prantik-07/bio-synthetica/blob/main/writeup.md) |
 
 *Built at OpenEnv Hackathon India 2026 by Prantik-07, Shivaansh Pandey, and Zehaan Asgar.*
