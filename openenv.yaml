@@ -1,0 +1,20 @@
+name: bio-synthetica-pro
+version: 1.0.0
+description: >
+  RL environment for physically-grounded lab protocol design.
+  LLM agent learns to write valid Opentrons OT-2 protocols under
+  partial observability, dynamic replanning, and cost constraints.
+theme: world_modeling
+subtheme: professional_tasks
+action_type: code_generation
+observation_type: structured_text
+reward_range: [-0.5, 2.5]
+max_steps: 15
+reset_on_violation: false
+tags:
+  - scientific-workflow
+  - partial-observability
+  - multi-objective
+  - code-generation
+  - world-modeling
+  - long-horizon
