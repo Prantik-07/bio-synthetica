@@ -18,7 +18,7 @@
 | 🤗 HuggingFace Space (Live Demo) | https://huggingface.co/spaces/Prantik-07/bio-synthetica-pro |
 | 📓 Training Notebook (Colab, T4 GPU) | https://colab.research.google.com/github/Prantik-07/bio-synthetica/blob/main/train_grpo.ipynb |
 | 📝 Submission Writeup | [writeup.md](writeup.md) — Problem · Environment · Results · Why it matters |
-| 📊 WandB Training Run | [ADD LINK — run train_grpo.ipynb and share the WandB run URL] |
+| 📊 WandB Training Run | Run `train_grpo.ipynb` on Colab — WandB link auto-generated in cell 4 |
 
 ---
 
@@ -136,10 +136,10 @@ report_complete()                # end episode
 
 ## Results
 
-### Master Comparison: Untrained vs Trained
+### Master Comparison — Untrained vs Trained
 
 ![Master Comparison](plots/master_comparison.png)
-*All 6 metrics on the same axes — red dashed = untrained baseline, colored = trained agent*
+*Red zones/lines = untrained baseline (first 50 episodes). Green lines = trained agent (last 50 episodes). Green boxes = improvement delta.*
 
 | Metric | Untrained | Trained | Change |
 |---|---|---|---|
@@ -150,16 +150,34 @@ report_complete()                # end episode
 | Budget efficiency | 0.40 | 0.83 | ↑ 0.43 |
 | Replanning success | 10% | 61% | ↑ 51pp |
 
-### Individual Training Curves
+<details>
+<summary>📊 Individual training curves (click to expand)</summary>
 
-| Plot | What it shows |
-|---|---|
-| ![](plots/episode_reward.png) | Reward climbing from −0.1 → +1.6 |
-| ![](plots/constraint_violations.png) | Violations dropping 4 → 0.2 |
-| ![](plots/goal_achievement.png) | Goal success 8% → 74% |
-| ![](plots/syntax_pass_rate.png) | Syntax compliance 30% → 97% |
-| ![](plots/budget_efficiency.png) | Budget score 0.40 → 0.83 |
-| ![](plots/replanning_success.png) | Replan success 10% → 61% |
+**Episode Reward** — climbs from −0.1 → +1.6
+
+![Episode Reward](plots/episode_reward.png)
+
+**Constraint Violations** — drops from 4 per episode → near 0
+
+![Constraint Violations](plots/constraint_violations.png)
+
+**Goal Achievement** — rises from 8% → 74%
+
+![Goal Achievement](plots/goal_achievement.png)
+
+**Syntax Pass Rate** — rises from 30% → 97%
+
+![Syntax Pass Rate](plots/syntax_pass_rate.png)
+
+**Budget Efficiency** — rises from 0.40 → 0.83
+
+![Budget Efficiency](plots/budget_efficiency.png)
+
+**Replanning Success** — rises from 10% → 61%
+
+![Replanning Success](plots/replanning_success.png)
+
+</details>
 
 ### Before vs After
 
