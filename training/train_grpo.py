@@ -1,0 +1,311 @@
+# FILE: training/train_grpo.py
+#
+# Run these in Colab before this script:
+# !pip install unsloth openenv wandb torch trl matplotlib datasets accelerate bitsandbytes
+# !git clone https://github.com/Prantik-07/bio-synthetica.git /content/bio-synthetica-pro
+
+import sys
+sys.path.append('/content/bio-synthetica-pro')
+
+from unsloth import FastLanguageModel
+from trl import GRPOTrainer, GRPOConfig
+from datasets import Dataset
+import wandb
+import torch
+import json
+import os
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import numpy as np
+
+from environment.bio_synthetica_env import BioSyntheticaEnv
+from training.reward import RewardCalculator
+
+# ---------------------------------------------------------------------------
+# WandB initialisation
+# ---------------------------------------------------------------------------
+wandb.init(
+    project="bio-synthetica-pro",
+    name="grpo-llama3-run1",
+    config={
+        "model": "Llama-3.1-8B-4bit",
+        "algorithm": "GRPO",
+        "max_steps": 1000,
+        "batch_size": 4,
+        "group_size": 8,
+        "learning_rate": 2e-5,
+        "max_new_tokens": 512,
+    },
+)
+
+# ---------------------------------------------------------------------------
+# Model loading
+# ---------------------------------------------------------------------------
+model_name = "unsloth/Meta-Llama-3.1-8B-Instruct-bnb-4bit"
+max_seq_length = 2048
+
+model, tokenizer = FastLanguageModel.from_pretrained(
+    model_name=model_name,
+    max_seq_length=max_seq_length,
+    load_in_4bit=True,
+    dtype=None,
+)
+
+model = FastLanguageModel.get_peft_model(
+    model,
+    r=16,
+    target_modules=[
+        "q_proj", "k_proj", "v_proj", "o_proj",
+        "gate_proj", "up_proj", "down_proj",
+    ],
+    lora_alpha=16,
+    lora_dropout=0,
+    bias="none",
+    use_gradient_checkpointing="unsloth",
+    random_state=42,
+)
+
+# ---------------------------------------------------------------------------
+# System prompt
+# ---------------------------------------------------------------------------
+SYSTEM_PROMPT = """You are a lab automation scientist operating an Opentrons OT-2 liquid handling robot.
+
+RULES YOU MUST FOLLOW:
+1. Always call scan(well_id) before using any well
+2. Never exceed 200ul volume in any well
+3. Never pipette more than 200ul at once
+4. Temperature must stay between 4C and 95C only
+5. Never use contaminated wells
+6. Minimize reagent cost while achieving the goal
+7. If contamination alert fires, avoid that well completely
+8. Always end your protocol with report_complete()
+
+OUTPUT ONLY VALID PYTHON CODE.
+No explanations. No markdown. No comments. Just Python."""
+
+
+# ---------------------------------------------------------------------------
+# Dataset generation
+# ---------------------------------------------------------------------------
+def generate_dataset(n_samples: int = 200) -> Dataset:
+    env = BioSyntheticaEnv()
+    samples = []
+
+    for i in range(n_samples):
+        obs_dict = env.reset()
+        observation = obs_dict["observation"]
+        prompt = f"{SYSTEM_PROMPT}\n\n{observation}"
+        samples.append({"prompt": prompt, "completion": ""})
+
+    return Dataset.from_list(samples)
+
+
+# ---------------------------------------------------------------------------
+# Metrics tracker
+# ---------------------------------------------------------------------------
+class MetricsTracker:
+
+    def __init__(self):
+        self.rewards = []
+        self.syntax_passes = []
+        self.violations = []
+        self.goal_scores = []
+        self.budget_scores = []
+        self.replan_scores = []
+
+    def log(self, reward: float, info: dict):
+        self.rewards.append(reward)
+        self.syntax_passes.append(1 if info.get("syntax_pass") else 0)
+        self.violations.append(len(info.get("violations", [])))
+        self.goal_scores.append(info.get("goal_progress", 0))
+        budget_used = info.get("budget_used", 0)
+        self.budget_scores.append(max(0, 1 - budget_used / 10.0))
+        self.replan_scores.append(
+            1 if info.get("rerouted_successfully") else 0
+        )
+
+    def moving_average(self, data: list, window: int = 20) -> list:
+        if len(data) < window:
+            return data
+        return [
+            np.mean(data[max(0, i - window): i + 1])
+            for i in range(len(data))
+        ]
+
+    def log_to_wandb(self, step: int):
+        if not self.rewards:
+            return
+        wandb.log(
+            {
+                "reward": self.rewards[-1],
+                "reward_ma20": np.mean(self.rewards[-20:]),
+                "syntax_pass_rate": np.mean(self.syntax_passes[-20:]),
+                "avg_violations": np.mean(self.violations[-20:]),
+                "goal_achievement": np.mean(self.goal_scores[-20:]),
+                "budget_efficiency": np.mean(self.budget_scores[-20:]),
+                "replan_success": np.mean(self.replan_scores[-20:]),
+            },
+            step=step,
+        )
+
+
+# ---------------------------------------------------------------------------
+# Reward function for GRPO
+# ---------------------------------------------------------------------------
+tracker = MetricsTracker()
+
+
+def reward_fn(completions, prompts=None, **kwargs):
+    env = BioSyntheticaEnv()
+    rewards = []
+
+    for i, completion in enumerate(completions):
+        try:
+            env.reset()
+            obs, reward, done, info = env.step(completion)
+            tracker.log(reward, info)
+            rewards.append(float(reward))
+        except Exception:
+            rewards.append(-0.5)
+
+    return rewards
+
+
+# ---------------------------------------------------------------------------
+# GRPO config and trainer
+# ---------------------------------------------------------------------------
+dataset = generate_dataset(200)
+
+grpo_config = GRPOConfig(
+    learning_rate=2e-5,
+    per_device_train_batch_size=4,
+    num_generations=8,
+    max_new_tokens=512,
+    max_steps=1000,
+    logging_steps=10,
+    save_steps=100,
+    output_dir="./bio-synthetica-checkpoints",
+    report_to="wandb",
+    warmup_steps=50,
+    weight_decay=0.01,
+)
+
+trainer = GRPOTrainer(
+    model=model,
+    config=grpo_config,
+    reward_funcs=reward_fn,
+    train_dataset=dataset,
+    tokenizer=tokenizer,
+)
+
+# ---------------------------------------------------------------------------
+# Train
+# ---------------------------------------------------------------------------
+trainer.train()
+
+
+# ---------------------------------------------------------------------------
+# Plot helpers
+# ---------------------------------------------------------------------------
+def save_all_plots(tracker: MetricsTracker):
+    os.makedirs("plots", exist_ok=True)
+
+    plots = [
+        {
+            "data": tracker.rewards,
+            "filename": "plots/episode_reward.png",
+            "title": "Bio-Synthetica: Episode Reward Over Training",
+            "ylabel": "Episode Reward",
+            "color": "blue",
+            "baseline": -0.1,
+        },
+        {
+            "data": tracker.syntax_passes,
+            "filename": "plots/syntax_pass_rate.png",
+            "title": "Syntax Pass Rate Over Training",
+            "ylabel": "Syntax Pass Rate",
+            "color": "green",
+            "baseline": 0.3,
+        },
+        {
+            "data": tracker.violations,
+            "filename": "plots/constraint_violations.png",
+            "title": "Constraint Violations Per Episode",
+            "ylabel": "Violations Per Episode",
+            "color": "red",
+            "baseline": 4.0,
+        },
+        {
+            "data": tracker.goal_scores,
+            "filename": "plots/goal_achievement.png",
+            "title": "Goal Achievement Rate Over Training",
+            "ylabel": "Goal Achievement Score (0-1)",
+            "color": "purple",
+            "baseline": 0.08,
+        },
+        {
+            "data": tracker.budget_scores,
+            "filename": "plots/budget_efficiency.png",
+            "title": "Budget Efficiency Score Over Training",
+            "ylabel": "Budget Efficiency (0-1)",
+            "color": "orange",
+            "baseline": 0.4,
+        },
+        {
+            "data": tracker.replan_scores,
+            "filename": "plots/replanning_success.png",
+            "title": "Mid-Episode Replanning Success Rate",
+            "ylabel": "Replanning Success Rate",
+            "color": "teal",
+            "baseline": 0.1,
+        },
+    ]
+
+    for p in plots:
+        fig, ax = plt.subplots(figsize=(10, 6))
+
+        raw = p["data"]
+        ma = tracker.moving_average(raw, window=20)
+        episodes = list(range(len(raw)))
+
+        ax.plot(episodes, raw, alpha=0.3, color=p["color"],
+                linewidth=0.8, label="Raw")
+        ax.plot(episodes, ma, color=p["color"],
+                linewidth=2.0, label="Moving Avg (20)")
+        ax.axhline(
+            y=p["baseline"], color="red", linestyle="--", linewidth=1.5,
+            label=f"Untrained baseline ({p['baseline']})",
+        )
+
+        ax.set_xlabel("Training Episodes", fontsize=13)
+        ax.set_ylabel(p["ylabel"], fontsize=13)
+        ax.set_title(p["title"], fontsize=14, fontweight="bold")
+        ax.legend(fontsize=11)
+        ax.grid(True, alpha=0.3)
+
+        plt.tight_layout()
+        plt.savefig(p["filename"], dpi=150, bbox_inches="tight")
+        plt.close()
+        print(f"Saved: {p['filename']}")
+
+
+save_all_plots(tracker)
+print("All plots saved to plots/ folder")
+
+# ---------------------------------------------------------------------------
+# Save metrics JSON
+# ---------------------------------------------------------------------------
+with open("metrics.json", "w") as f:
+    json.dump(
+        {
+            "rewards": tracker.rewards,
+            "syntax_passes": tracker.syntax_passes,
+            "violations": tracker.violations,
+            "goal_scores": tracker.goal_scores,
+            "budget_scores": tracker.budget_scores,
+            "replan_scores": tracker.replan_scores,
+        },
+        f,
+    )
+print("Metrics saved to metrics.json")
