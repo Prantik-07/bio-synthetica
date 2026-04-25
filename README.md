@@ -18,7 +18,7 @@
 | 🤗 HuggingFace Space (Live Demo) | https://huggingface.co/spaces/Prantik-07/bio-synthetica-pro |
 | 📓 Training Notebook (Colab, T4 GPU) | https://colab.research.google.com/github/Prantik-07/bio-synthetica/blob/main/train_grpo.ipynb |
 | 📝 Submission Writeup | [writeup.md](writeup.md) — Problem · Environment · Results · Why it matters |
-| 📊 WandB Training Run | Run `train_grpo.ipynb` on Colab — WandB link auto-generated in cell 4 |
+| 📊 WandB Training Run | https://wandb.ai/shivaansh0610-polaris-school-of-technology/huggingface/runs/54fe6ui2?nw=nwusershivaansh0610|
 
 ---
 
