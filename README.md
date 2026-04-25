@@ -7,6 +7,8 @@
 [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Prantik-07/bio-synthetica/blob/main/train_grpo.ipynb)
 [![OpenEnv](https://img.shields.io/badge/framework-OpenEnv-green)](https://github.com/openenv/openenv)
 
+📖 **[Read the full writeup →](writeup.md)** — Problem · Environment · Results · Why it matters
+
 ---
 
 ## Quick Links
@@ -15,7 +17,7 @@
 |---|---|
 | 🤗 HuggingFace Space (Live Demo) | https://huggingface.co/spaces/Prantik-07/bio-synthetica-pro |
 | 📓 Training Notebook (Colab, T4 GPU) | https://colab.research.google.com/github/Prantik-07/bio-synthetica/blob/main/train_grpo.ipynb |
-| 📝 Mini Blog (HuggingFace) | [ADD LINK — post blog_post.md to huggingface.co/new-post] |
+| 📝 Submission Writeup | [writeup.md](writeup.md) — Problem · Environment · Results · Why it matters |
 | 📊 WandB Training Run | [ADD LINK — run train_grpo.ipynb and share the WandB run URL] |
 
 ---
