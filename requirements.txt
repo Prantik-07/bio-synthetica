@@ -1,0 +1,13 @@
+unsloth
+openenv
+torch
+trl
+transformers
+datasets
+wandb
+gradio
+matplotlib
+numpy
+pyyaml
+accelerate
+bitsandbytes
