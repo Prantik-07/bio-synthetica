@@ -8,7 +8,7 @@ sdk_version: "4.44.0"
 app_file: app.py
 pinned: true
 license: mit
-short_description: OpenEnv RL env - GRPO-trained LLMs write valid Opentrons lab protocols
+short_description: OpenEnv + GRPO: valid Opentrons OT-2 protocols
 tags:
   - reinforcement-learning
   - openenv
