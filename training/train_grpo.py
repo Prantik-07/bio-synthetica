@@ -194,13 +194,16 @@ def reward_fn(completions, prompts=None, **kwargs):
 # ---------------------------------------------------------------------------
 dataset = generate_dataset(200)
 
-# TRL GRPO: generation length is controlled by max_completion_length (default 256).
-# Setting only max_new_tokens is ignored -> Transformers still logs max_new_tokens=256.
+# TRL GRPO: length is set ONLY via GRPOConfig — NOT via GRPOTrainer(generate_kwargs=...).
+# - max_completion_length (default 256) -> becomes max_new_tokens in GenerationConfig
+# - generation_kwargs is merged on top (belt-and-suspenders)
+# Wrong: pass max_new_tokens= to GRPOConfig (invalid field) or generate_kwargs= to GRPOTrainer (ignored).
 grpo_config = GRPOConfig(
     learning_rate=2e-5,
     per_device_train_batch_size=4,
     num_generations=8,
     max_completion_length=512,
+    generation_kwargs={"max_new_tokens": 512},
     max_steps=1000,
     logging_steps=10,
     save_steps=100,
@@ -209,6 +212,8 @@ grpo_config = GRPOConfig(
     warmup_steps=50,
     weight_decay=0.01,
 )
+print("GRPOConfig check → max_completion_length =", grpo_config.max_completion_length,
+      "| generation_kwargs =", grpo_config.generation_kwargs)
 
 trainer = GRPOTrainer(
     model=model,
