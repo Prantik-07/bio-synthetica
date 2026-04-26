@@ -1,6 +1,7 @@
 # FILE: environment/bio_synthetica_env.py
 import ast
 import random
+import re
 
 try:
     from openenv import Environment
@@ -14,8 +15,64 @@ except ImportError:
         def state(self):
             raise NotImplementedError
 
-from environment.lab_simulator import LabSimulator
+from environment.lab_simulator import LabSimulator, WELL_IDS
 from environment.observation_generator import ObservationGenerator
+
+
+def normalize_protocol(text: str) -> str:
+    """
+    Turn typical LLM output into parseable Python.
+    - Strips ``` / ```python fences
+    - Removes leading 'python' after opening fence
+    - Drops common assistant prefixes
+    """
+    if not text:
+        return ""
+    s = str(text).strip()
+    for prefix in (
+        "Here is the protocol",
+        "Here is the code",
+        "Here's the protocol",
+        "Sure,",
+        "Sure!",
+    ):
+        if s.lower().startswith(prefix.lower()):
+            idx = s.find("\n")
+            s = s[idx + 1:].lstrip() if idx != -1 else ""
+            break
+    if "```" in s:
+        parts = re.split(r"```(?:\s*python)?\s*", s, maxsplit=1, flags=re.IGNORECASE)
+        if len(parts) > 1:
+            rest = parts[1]
+            end = rest.find("```")
+            s = rest[:end] if end != -1 else rest
+    s = s.strip()
+    if s.lower().startswith("python\n"):
+        s = s[7:].lstrip()
+    return s.strip()
+
+
+def _actions_from_stmts(stmts) -> list:
+    """Build ordered (name, args) from a flat list of statement nodes."""
+    actions = []
+    for stmt in stmts:
+        if isinstance(stmt, ast.Expr) and isinstance(stmt.value, ast.Call):
+            call = stmt.value
+            if isinstance(call.func, ast.Name):
+                func_name = call.func.id
+                args = []
+                for arg in call.args:
+                    try:
+                        args.append(ast.literal_eval(arg))
+                    except (ValueError, TypeError, SyntaxError):
+                        args.append(None)
+                for kw in call.keywords:
+                    try:
+                        args.append(ast.literal_eval(kw.value))
+                    except (ValueError, TypeError, SyntaxError):
+                        args.append(None)
+                actions.append((func_name, args))
+    return actions
 
 
 class BioSyntheticaEnv(Environment):
@@ -53,12 +110,12 @@ class BioSyntheticaEnv(Environment):
 
     def step(self, action: str) -> tuple:
         self.episode_step += 1
+        action = normalize_protocol(action)
 
         if self.obs_generator.should_trigger_event(
             self.episode_step, self.contamination_triggered
         ):
-            target = random.choice(self.simulator.WELL_IDS if hasattr(
-                self.simulator, 'WELL_IDS') else list(self.simulator.wells.keys()))
+            target = random.choice(WELL_IDS)
             self.active_event = self.simulator.trigger_contamination_event(target)
             self.contamination_triggered = True
 
@@ -108,7 +165,9 @@ class BioSyntheticaEnv(Environment):
         )
         reward = calc.compute(info, state)
 
-        done = self.episode_step >= self.max_steps or "report_complete" in action
+        done = self.episode_step >= self.max_steps or "report_complete" in (
+            action or ""
+        )
 
         new_observation = self.obs_generator.generate_observation(
             self.simulator, self.current_goal, self.active_event
@@ -132,31 +191,32 @@ class BioSyntheticaEnv(Environment):
         return full_state
 
     def parse_protocol(self, protocol_str: str) -> dict:
-        """Parse LLM output string into list of (action_name, args) tuples."""
+        """Parse LLM output (already normalized) into ordered (action, args) tuples."""
+        if not (protocol_str or "").strip():
+            return {"syntax_pass": False, "actions": []}
+
         try:
             tree = ast.parse(protocol_str)
         except SyntaxError:
             return {"syntax_pass": False, "actions": []}
 
-        actions = []
-        for node in ast.walk(tree):
-            if isinstance(node, ast.Expr) and isinstance(node.value, ast.Call):
-                call = node.value
-                if isinstance(call.func, ast.Name):
-                    func_name = call.func.id
-                    args = []
-                    for arg in call.args:
-                        try:
-                            args.append(ast.literal_eval(arg))
-                        except (ValueError, TypeError):
-                            args.append(None)
-                    for kw in call.keywords:
-                        try:
-                            args.append(ast.literal_eval(kw.value))
-                        except (ValueError, TypeError):
-                            args.append(None)
-                    actions.append((func_name, args))
+        if isinstance(tree, ast.Module) and not tree.body:
+            return {"syntax_pass": False, "actions": []}
 
+        if isinstance(tree, ast.Module) and len(tree.body) == 1:
+            only = tree.body[0]
+            if isinstance(only, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                tree = only
+
+        if isinstance(tree, ast.Module):
+            actions = _actions_from_stmts(tree.body)
+        elif isinstance(tree, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            actions = _actions_from_stmts(tree.body)
+        else:
+            actions = []
+
+        if not actions:
+            return {"syntax_pass": False, "actions": []}
         return {"syntax_pass": True, "actions": actions}
 
     def execute_action(self, action_name: str, args: list) -> dict:

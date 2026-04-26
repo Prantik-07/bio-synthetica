@@ -159,6 +159,7 @@ tracker = MetricsTracker()
 def reward_fn(completions, prompts=None, **kwargs):
     env = BioSyntheticaEnv()
     rewards = []
+    syntax_flags = []
 
     for i, completion in enumerate(completions):
         try:
@@ -166,9 +167,25 @@ def reward_fn(completions, prompts=None, **kwargs):
             obs, reward, done, info = env.step(completion)
             tracker.log(reward, info)
             rewards.append(float(reward))
-        except Exception:
+            syntax_flags.append(1.0 if info.get("syntax_pass") else 0.0)
+        except Exception as e:
             rewards.append(-0.5)
+            syntax_flags.append(0.0)
+            if os.environ.get("BIO_DEBUG_REWARD"):
+                print("reward_fn exception:", repr(e))
 
+    try:
+        wandb.log(
+            {
+                "reward/batch_mean": float(np.mean(rewards)) if rewards else 0.0,
+                "parse/syntax_ok_rate": (
+                    float(np.mean(syntax_flags)) if syntax_flags else 0.0
+                ),
+            },
+            commit=False,
+        )
+    except Exception:
+        pass
     return rewards
 
 
