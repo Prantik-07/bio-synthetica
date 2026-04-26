@@ -28,4 +28,5 @@ Compare an **untrained** vs **GRPO-trained** Llama-3.1-8B writing Opentrons OT-2
 **GitHub:** https://github.com/Prantik-07/bio-synthetica  
 **Hackathon:** OpenEnv Hackathon India 2026
 
-**Write-up (Round 2):** upload `Blog.MD` from this repo into the Space — same story as `writeup.md` on GitHub.
+**What to upload:** see **`UPLOAD_TO_HF.md`** in this folder.  
+**Round 2 write-up:** add repo file **`writeup.md`** to the Space and name it **`Blog.MD`**.
