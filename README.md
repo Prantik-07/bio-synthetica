@@ -16,7 +16,7 @@
 | Resource | Link |
 |---|---|
 | 🤗 HuggingFace Space (Live Demo) | https://huggingface.co/spaces/Prantik-07/bio-synthetica-pro |
-| 📓 Training Notebook (Colab, T4 GPU) | https://colab.research.google.com/github/Prantik-07/bio-synthetica/blob/main/train_grpo.ipynb |
+| 📓 Training Notebook (Colab, T4 GPU) | https://www.kaggle.com/code/shivaanshpandey/notebookc00610413e |
 | 📝 Submission Writeup | [writeup.md](writeup.md) — Problem · Environment · Results · Why it matters |
 | 📊 WandB | [Project `huggingface`](https://wandb.ai/shivaansh0610-polaris-school-of-technology/huggingface) — add your latest run URL after the sprint |
 | 📓 All-in-one Kaggle notebook (raw) | [train_grpo_kaggle.ipynb](https://github.com/Prantik-07/bio-synthetica/blob/main/train_grpo_kaggle.ipynb) |
