@@ -212,6 +212,10 @@ grpo_config = GRPOConfig(
     warmup_steps=50,
     weight_decay=0.01,
 )
+grpo_config.max_completion_length = 512
+_gw = dict(grpo_config.generation_kwargs or {})
+_gw["max_new_tokens"] = 512
+grpo_config.generation_kwargs = _gw
 print("GRPOConfig check → max_completion_length =", grpo_config.max_completion_length,
       "| generation_kwargs =", grpo_config.generation_kwargs)
 
@@ -222,6 +226,7 @@ trainer = GRPOTrainer(
     train_dataset=dataset,
     tokenizer=tokenizer,
 )
+print("trainer.max_completion_length =", getattr(trainer, "max_completion_length", "n/a"), "(expect 512)")
 
 # ---------------------------------------------------------------------------
 # Train
