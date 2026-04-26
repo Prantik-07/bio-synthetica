@@ -3,7 +3,7 @@
 
 > "An AI that learned the laws of physics by breaking them thousands of times in simulation."
 
-[![HuggingFace Space](https://img.shields.io/badge/🤗%20Space-Live%20Demo-blue)](https://huggingface.co/spaces/Prantik-07/bio-synthetica-pro)
+[![HuggingFace Space](https://img.shields.io/badge/🤗%20Space-Live%20Demo-blue)](https://huggingface.co/spaces/Luffy0610/bio-synthetica-pro)
 [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Prantik-07/bio-synthetica/blob/main/train_grpo.ipynb)
 [![OpenEnv](https://img.shields.io/badge/framework-OpenEnv-green)](https://github.com/openenv/openenv)
 
@@ -11,15 +11,20 @@
 
 ---
 
-## Quick Links
+## Quick Links (judges)
 
 | Resource | Link |
 |---|---|
-| 🤗 HuggingFace Space (Live Demo) | https://huggingface.co/spaces/Prantik-07/bio-synthetica-pro |
-| 📓 Training Notebook (Colab, T4 GPU) | https://www.kaggle.com/code/shivaanshpandey/notebookc00610413e |
-| 📝 Submission Writeup | [writeup.md](writeup.md) — Problem · Environment · Results · Why it matters |
-| 📊 WandB | [Project `huggingface`](https://wandb.ai/shivaansh0610-polaris-school-of-technology/huggingface) — add your latest run URL after the sprint |
-| 📓 All-in-one Kaggle notebook (raw) | [train_grpo_kaggle.ipynb](https://github.com/Prantik-07/bio-synthetica/blob/main/train_grpo_kaggle.ipynb) |
+| 🤗 **Hugging Face Space** (runnable demo — submission) | https://huggingface.co/spaces/Luffy0610/bio-synthetica-pro |
+| 📓 **Training — Colab** (`train_grpo.ipynb`, T4) | https://colab.research.google.com/github/Prantik-07/bio-synthetica/blob/main/train_grpo.ipynb |
+| 📓 **Training — Kaggle** | https://www.kaggle.com/code/shivaanshpandey/notebookc00610413e |
+| 📓 **Training — Kaggle notebook (GitHub raw)** | [train_grpo_kaggle.ipynb](https://github.com/Prantik-07/bio-synthetica/blob/main/train_grpo_kaggle.ipynb) |
+| 📊 **W&B** | [Project `huggingface`](https://wandb.ai/shivaansh0610-polaris-school-of-technology/huggingface) |
+| 📈 **Plots** (training evidence in repo) | [plots/](https://github.com/Prantik-07/bio-synthetica/tree/main/plots) · [master_comparison.png (raw)](https://raw.githubusercontent.com/Prantik-07/bio-synthetica/main/plots/master_comparison.png) |
+| 📝 **Writeup** | [writeup.md](writeup.md) |
+| 📄 **Mini-blog (HF)** | [Blog.MD on Space](https://huggingface.co/spaces/Luffy0610/bio-synthetica-pro/blob/main/Blog.MD) |
+| 🎥 **Video** | *Add public YouTube URL when ready* |
+| 📋 **Judge rubric** | [Google Doc](https://docs.google.com/document/d/1Odznuzwtb1ecDOm2t6ToZd4MuMXXfO6vWUGcxbC6mFs/edit?tab=t.0#bookmark=kix.2dz0x0nie3me) |
 
 ---
 

@@ -176,7 +176,7 @@ report_complete()
 
 | | |
 |---|---|
-| 🤗 Live Demo | https://huggingface.co/spaces/Prantik-07/bio-synthetica-pro |
+| 🤗 Live Demo | https://huggingface.co/spaces/Luffy0610/bio-synthetica-pro |
 | 📓 Colab Notebook | https://colab.research.google.com/github/Prantik-07/bio-synthetica/blob/main/train_grpo.ipynb |
 | 💻 GitHub | https://github.com/Prantik-07/bio-synthetica |
 
