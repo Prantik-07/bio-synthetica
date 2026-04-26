@@ -15,6 +15,7 @@ os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
 
 import torch
 if torch.cuda.is_available():
+    torch.cuda.set_device(0)
     torch.cuda.empty_cache()
     gc.collect()
 
@@ -53,20 +54,37 @@ wandb.init(
 # ---------------------------------------------------------------------------
 # Model loading
 # ---------------------------------------------------------------------------
-# T4 ~15GB: keep context modest (GRPO uses max_completion_length 512). If load still fails, try:
-# unsloth/Llama-3.2-3B-Instruct-bnb-4bit
-model_name = "unsloth/Meta-Llama-3.1-8B-Instruct-bnb-4bit"
+# T4: modest ctx; float16 (no bf16 on T4). If 8B still hits BNB "CPU/disk" map error, use 3.2-3B.
+_PRIMARY = "unsloth/Meta-Llama-3.1-8B-Instruct-bnb-4bit"
+_FALLBACK = "unsloth/Llama-3.2-3B-Instruct-bnb-4bit"
 max_seq_length = 1024
+_load_dtype = torch.float16
 
-model, tokenizer = FastLanguageModel.from_pretrained(
-    model_name=model_name,
-    max_seq_length=max_seq_length,
-    load_in_4bit=True,
-    dtype=None,
-    fast_inference=False,
-    # Force whole 4bit model on GPU 0; partial CPU/disk map breaks bitsandbytes validation
-    device_map={"": 0},
-)
+
+def _load_4bit(name: str):
+    return FastLanguageModel.from_pretrained(
+        model_name=name,
+        max_seq_length=max_seq_length,
+        load_in_4bit=True,
+        dtype=_load_dtype,
+        fast_inference=False,
+        device_map={"": 0},
+    )
+
+
+model_name = _PRIMARY
+try:
+    model, tokenizer = _load_4bit(_PRIMARY)
+except ValueError as e:
+    err = str(e).lower()
+    if "cpu" in err or "disk" in err:
+        print("8B load failed; using 3.2-3B fallback:", _FALLBACK)
+        model_name = _FALLBACK
+        model, tokenizer = _load_4bit(_FALLBACK)
+    else:
+        raise
+
+print("Loaded:", model_name)
 
 model = FastLanguageModel.get_peft_model(
     model,
