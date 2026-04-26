@@ -1,23 +1,27 @@
 # What to upload to your Hugging Face Space
 
-## Required (from this `hf_space/` folder)
+## Required files (from `hf_space/` on GitHub)
 
 | File | Purpose |
 |------|---------|
-| `app.py` | Gradio demo (mandatory) |
-| `requirements.txt` | Python deps for the Space build |
-| `README.md` | Space card (YAML `---` header + short description) |
+| `app.py` | Gradio demo |
+| `requirements.txt` | Dependencies |
+| `README.md` | Space card (YAML + description) |
 
-## Round 2 write-up (separate from Space `README.md`)
+## Round 2 write-up — **`Blog.MD`**
 
-| Source in repo | On HuggingFace Space |
-|----------------|----------------------|
-| **`writeup.md`** (repo root) | Upload the same file and name it **`Blog.MD`** in the Space file browser |
+**Location in the repo (after `git pull`):**
 
-**Why one file:** The story already lives in `writeup.md` on GitHub. Duplicates (`blog_post.md`, extra `Blog.MD` copies) were removed to avoid confusion.
+```
+hf_space/Blog.MD
+```
 
-**Steps:** Space → **Files and versions** → **Add file** → upload `writeup.md` from the repo → **rename to `Blog.MD`** (exact casing) so judges see it in the Space.
+Full path on disk: **`bio-synthetica-pro/hf_space/Blog.MD`**
+
+Upload that file to the Space **as-is** (name must be **`Blog.MD`** — capital B, rest lower case, per organizer message).
+
+**Also in repo:** `writeup.md` at the repo root is the same story for GitHub README links; charts in `Blog.MD` use `raw.githubusercontent.com` so the master plot shows when you view the file on HF.
 
 ---
 
-**Do not** upload: training code, plots, `train_grpo.ipynb`, or the full repo (keeps the Space small per hackathon rules).
+**Do not upload:** training code, notebooks, or `plots/` (keeps the Space small).
