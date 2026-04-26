@@ -16,7 +16,7 @@
 | Resource | Link |
 |---|---|
 | 🤗 HuggingFace Space (Live Demo) | https://huggingface.co/spaces/Prantik-07/bio-synthetica-pro |
-| 📓 Training Notebook (Colab, T4 GPU) | https://colab.research.google.com/drive/1_JBNLw6IrSP03xD383sejoFeGhg37cqE#scrollTo=train-cell |
+| 📓 Training Notebook (Colab, T4 GPU) | https://www.kaggle.com/code/shivaanshpandey/notebookc00610413e |
 | 📝 Submission Writeup | [writeup.md](writeup.md) — Problem · Environment · Results · Why it matters |
 | 📊 WandB Training Run | https://wandb.ai/shivaansh0610-polaris-school-of-technology/huggingface/runs/54fe6ui2?nw=nwusershivaansh0610 |
 
