@@ -1,19 +1,30 @@
 # FILE: training/train_grpo.py
 #
 # Run these in Colab before this script:
-# !pip install unsloth openenv wandb torch trl matplotlib datasets accelerate bitsandbytes
+# !pip install "transformers>=4.44" unsloth openenv wandb torch trl matplotlib datasets accelerate bitsandbytes
 # !git clone https://github.com/Prantik-07/bio-synthetica.git /content/bio-synthetica-pro
 
 import sys
 sys.path.append('/content/bio-synthetica-pro')
 
-from unsloth import FastLanguageModel
+import gc
+import os
+
+# Colab T4: reduce allocator fragmentation; helps avoid "modules on CPU/disk" with 4bit BNB
+os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
+
+import torch
+if torch.cuda.is_available():
+    torch.cuda.empty_cache()
+    gc.collect()
+
+from unsloth import FastLanguageModel, PatchFastRL
 from trl import GRPOTrainer, GRPOConfig
+
+PatchFastRL("GRPO", FastLanguageModel)
 from datasets import Dataset
 import wandb
-import torch
 import json
-import os
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -42,14 +53,19 @@ wandb.init(
 # ---------------------------------------------------------------------------
 # Model loading
 # ---------------------------------------------------------------------------
+# T4 ~15GB: keep context modest (GRPO uses max_completion_length 512). If load still fails, try:
+# unsloth/Llama-3.2-3B-Instruct-bnb-4bit
 model_name = "unsloth/Meta-Llama-3.1-8B-Instruct-bnb-4bit"
-max_seq_length = 2048
+max_seq_length = 1024
 
 model, tokenizer = FastLanguageModel.from_pretrained(
     model_name=model_name,
     max_seq_length=max_seq_length,
     load_in_4bit=True,
     dtype=None,
+    fast_inference=False,
+    # Force whole 4bit model on GPU 0; partial CPU/disk map breaks bitsandbytes validation
+    device_map={"": 0},
 )
 
 model = FastLanguageModel.get_peft_model(
