@@ -35,7 +35,7 @@ wandb.init(
         "batch_size": 4,
         "group_size": 8,
         "learning_rate": 2e-5,
-        "max_new_tokens": 512,
+        "max_completion_length": 512,
     },
 )
 
@@ -194,11 +194,13 @@ def reward_fn(completions, prompts=None, **kwargs):
 # ---------------------------------------------------------------------------
 dataset = generate_dataset(200)
 
+# TRL GRPO: generation length is controlled by max_completion_length (default 256).
+# Setting only max_new_tokens is ignored -> Transformers still logs max_new_tokens=256.
 grpo_config = GRPOConfig(
     learning_rate=2e-5,
     per_device_train_batch_size=4,
     num_generations=8,
-    max_new_tokens=512,
+    max_completion_length=512,
     max_steps=1000,
     logging_steps=10,
     save_steps=100,
