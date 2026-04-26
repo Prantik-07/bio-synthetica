@@ -1,4 +1,4 @@
-# Bio-Synthetica Pro — Submission Writeup
+# Bio-Synthetica Pro - Submission Writeup
 
 *Upload this file to your Hugging Face Space as **`Blog.MD`**. (Same as repo root `writeup.md`; image uses GitHub `raw` so it renders on HF.)*
 
@@ -6,7 +6,7 @@
 
 ---
 
-## Problem — What capability gap are we targeting?
+## Problem - What capability gap are we targeting?
 
 Ask any frontier LLM to write a lab automation protocol and it confidently produces code that would destroy real equipment.
 
@@ -15,18 +15,18 @@ Here is Claude 3.5 Sonnet, unprompted:
 ```python
 # Claude-generated protocol (untrained)
 pipette("A1", "B1", volume=250)      # ❌ 250ul > 200ul hardware max
-mix("C3", volume=100, repetitions=5) # ❌ C3 was never scanned — null well
+mix("C3", volume=100, repetitions=5) # ❌ C3 was never scanned - null well
 set_temperature("D2", temp=120)      # ❌ 120°C melts the plate (max is 95°C)
 report_complete()
 ```
 
 Three violations. Zero reagent transferred. $5 000 of samples ruined in a real lab.
 
-This is not a knowledge problem — GPT-4 can explain PCR and pipetting in detail. It is a **training signal problem**. No RL environment has ever penalised an LLM for overflowing a well, using a contaminated sample, or operating on a hidden well. Bio-Synthetica Pro is the first environment that does.
+This is not a knowledge problem - GPT-4 can explain PCR and pipetting in detail. It is a **training signal problem**. No RL environment has ever penalised an LLM for overflowing a well, using a contaminated sample, or operating on a hidden well. Bio-Synthetica Pro is the first environment that does.
 
 ---
 
-## Environment — What does the agent see, do, and get rewarded for?
+## Environment - What does the agent see, do, and get rewarded for?
 
 ### What the agent sees
 
@@ -68,7 +68,7 @@ mix("B2", volume=60, repetitions=3)
 report_complete()
 ```
 
-The simulator parses this, executes each call against the physics engine, and enforces every constraint in `lab_simulator.py`. There is no prompt-level masking — unscanned wells cause hard violations in code.
+The simulator parses this, executes each call against the physics engine, and enforces every constraint in `lab_simulator.py`. There is no prompt-level masking - unscanned wells cause hard violations in code.
 
 ### Three things that make this genuinely hard
 
@@ -81,7 +81,7 @@ pipette("A1", "B1", volume=50)
 ```
 
 **2. Dynamic Replanning.**  
-Between steps 3 and 7, a contamination alert fires with 30% probability. The agent cannot restart — it must reroute mid-protocol.
+Between steps 3 and 7, a contamination alert fires with 30% probability. The agent cannot restart - it must reroute mid-protocol.
 
 **3. Multi-Objective Reward.**  
 Enzymes cost $2.50/ul. Buffer costs $0.10/ul. The agent must hit its target concentration *and* minimise cost.
@@ -100,9 +100,9 @@ Enzymes cost $2.50/ul. Buffer costs $0.10/ul. The agent must hit its target conc
 
 ---
 
-## Results — What changed after training?
+## Results - What changed after training?
 
-We trained Llama-3.1-8B (4-bit quantised via Unsloth) using GRPO on a free Google Colab T4 GPU for 1 000 episodes.
+We trained Llama-3.1-8B (4-bit quantised via Unsloth) using GRPO on a Kaggle T4 GPU (see linked notebook).
 
 ### Master comparison
 
@@ -119,7 +119,7 @@ We trained Llama-3.1-8B (4-bit quantised via Unsloth) using GRPO on a free Googl
 
 ---
 
-## Why it matters — who would care?
+## Why it matters - who would care?
 
 **Biotech labs** using Opentrons, Tecan, or Hamilton robots need LLM co-pilots that respect physical constraints. **RL researchers** get a benchmark for partial observability, long-horizon replanning, and multi-objective reward.
 
@@ -129,8 +129,9 @@ We trained Llama-3.1-8B (4-bit quantised via Unsloth) using GRPO on a free Googl
 
 | | |
 |---|---|
-| 🤗 Live Demo | Your Space URL |
-| 📓 Colab | https://colab.research.google.com/github/Prantik-07/bio-synthetica/blob/main/train_grpo.ipynb |
-| 💻 GitHub | https://github.com/Prantik-07/bio-synthetica |
+| Live Demo | https://huggingface.co/spaces/Luffy0610/bio-synthetica-pro |
+| Training (Kaggle) | https://www.kaggle.com/code/shivaanshpandey/notebookc00610413e |
+| Notebook source (GitHub) | https://github.com/Prantik-07/bio-synthetica/blob/main/train_grpo_kaggle.ipynb |
+| GitHub | https://github.com/Prantik-07/bio-synthetica |
 
 *Built at OpenEnv Hackathon India 2026 by Prantik-07, shivaansh0610-LUFFY, and ZehaanArshad.*

@@ -231,7 +231,7 @@ css = """
 with gr.Blocks(title="Bio-Synthetica Pro 🧬", css=css) as demo:
     gr.Markdown("""
 # 🧬 Bio-Synthetica Pro
-### Teaching AI to Think Like a Scientist — Under Real Constraints
+### Teaching AI to Think Like a Scientist - Under Real Constraints
 
 > *"An AI that learned the laws of physics by breaking them thousands of times in simulation."*
 
@@ -244,7 +244,7 @@ with gr.Blocks(title="Bio-Synthetica Pro 🧬", css=css) as demo:
 ## What this shows
 Pick a scenario, choose **Untrained** or **Trained** agent, and see the difference.
 The untrained agent violates physical constraints (overflows wells, skips scans, ignores contamination).
-The trained agent — fine-tuned with GRPO on this environment — respects every constraint and minimises cost.
+The trained agent - fine-tuned with GRPO on this environment - respects every constraint and minimises cost.
 """)
 
     with gr.Row():
@@ -291,7 +291,7 @@ The trained agent — fine-tuned with GRPO on this environment — respects ever
 ### How the environment works
 The agent sees a **partial 16-well lab plate** (wells are hidden until scanned) with 5% sensor noise.
 It writes Python code using `scan()`, `pipette()`, `mix()`, `set_temperature()`, and `report_complete()`.
-Between steps 3–7 a **contamination alert** fires randomly — the trained agent reroutes without restarting.
+Between steps 3–7 a **contamination alert** fires randomly - the trained agent reroutes without restarting.
 
 Built with [OpenEnv](https://github.com/openenv/openenv) · Trained with [Unsloth](https://github.com/unslothai/unsloth) GRPO
 """)

@@ -1,5 +1,5 @@
 # FILE: generate_master_plot.py
-# Generates plots/master_comparison.png — the key judge-facing plot.
+# Generates plots/master_comparison.png - the key judge-facing plot.
 import os
 import numpy as np
 import matplotlib
@@ -51,7 +51,7 @@ metrics = [
 
 fig, axes = plt.subplots(2, 3, figsize=(20, 12))
 fig.suptitle(
-    "Bio-Synthetica Pro — Untrained vs Trained Agent",
+    "Bio-Synthetica Pro - Untrained vs Trained Agent",
     fontsize=22, fontweight="bold", y=1.01,
 )
 

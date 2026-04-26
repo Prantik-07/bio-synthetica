@@ -1,36 +1,32 @@
 # Bio-Synthetica Pro 🧬
-### Teaching AI to Think Like a Scientist — Under Real Constraints
+### Teaching AI to Think Like a Scientist - Under Real Constraints
 
 > "An AI that learned the laws of physics by breaking them thousands of times in simulation."
 
 [![HuggingFace Space](https://img.shields.io/badge/🤗%20Space-Live%20Demo-blue)](https://huggingface.co/spaces/Luffy0610/bio-synthetica-pro)
-[![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Prantik-07/bio-synthetica/blob/main/train_grpo.ipynb)
 [![OpenEnv](https://img.shields.io/badge/framework-OpenEnv-green)](https://github.com/openenv/openenv)
 
-📖 **[Read the full writeup →](writeup.md)** — Problem · Environment · Results · Why it matters
+📖 **[Read the full writeup →](writeup.md)** - Problem · Environment · Results · Why it matters
 
 ---
 
-## Quick Links (judges)
+## Quick Links
 
 | Resource | Link |
 |---|---|
-| 🤗 **Hugging Face Space** (runnable demo — submission) | https://huggingface.co/spaces/Luffy0610/bio-synthetica-pro |
-| 📓 **Training — Colab** (`train_grpo.ipynb`, T4) | https://colab.research.google.com/github/Prantik-07/bio-synthetica/blob/main/train_grpo.ipynb |
-| 📓 **Training — Kaggle** | https://www.kaggle.com/code/shivaanshpandey/notebookc00610413e |
-| 📓 **Training — Kaggle notebook (GitHub raw)** | [train_grpo_kaggle.ipynb](https://github.com/Prantik-07/bio-synthetica/blob/main/train_grpo_kaggle.ipynb) |
-| 📊 **W&B** | [Project `huggingface`](https://wandb.ai/shivaansh0610-polaris-school-of-technology/huggingface) |
-| 📈 **Plots** (training evidence in repo) | [plots/](https://github.com/Prantik-07/bio-synthetica/tree/main/plots) · [master_comparison.png (raw)](https://raw.githubusercontent.com/Prantik-07/bio-synthetica/main/plots/master_comparison.png) |
-| 📝 **Writeup** | [writeup.md](writeup.md) |
-| 📄 **Mini-blog (HF)** | [Blog.MD on Space](https://huggingface.co/spaces/Luffy0610/bio-synthetica-pro/blob/main/Blog.MD) |
-| 🎥 **Video** | *Add public YouTube URL when ready* |
-| 📋 **Judge rubric** | [Google Doc](https://docs.google.com/document/d/1Odznuzwtb1ecDOm2t6ToZd4MuMXXfO6vWUGcxbC6mFs/edit?tab=t.0#bookmark=kix.2dz0x0nie3me) |
+| Hugging Face Space (runnable demo) | https://huggingface.co/spaces/Luffy0610/bio-synthetica-pro |
+| Training (Kaggle) | https://www.kaggle.com/code/shivaanshpandey/notebookc00610413e |
+| Training notebook source (GitHub) | [train_grpo_kaggle.ipynb](https://github.com/Prantik-07/bio-synthetica/blob/main/train_grpo_kaggle.ipynb) |
+| W&B (metrics from training runs) | https://wandb.ai/shivaansh0610-polaris-school-of-technology/huggingface |
+| Training evidence (plots in repo, no upload needed) | [plots/](https://github.com/Prantik-07/bio-synthetica/tree/main/plots), [master_comparison.png](https://raw.githubusercontent.com/Prantik-07/bio-synthetica/main/plots/master_comparison.png) |
+| Writeup | [writeup.md](writeup.md) |
+| Mini-blog on Space | [Blog.MD](https://huggingface.co/spaces/Luffy0610/bio-synthetica-pro/blob/main/Blog.MD) |
 
 ---
 
 ## The Problem
 
-LLMs confidently generate lab protocols that would destroy real equipment. They overflow wells, use contaminated samples, and exceed hardware limits — because no training environment has ever punished them for it. Bio-Synthetica Pro fixes that.
+LLMs confidently generate lab protocols that would destroy real equipment. They overflow wells, use contaminated samples, and exceed hardware limits - because no training environment has ever punished them for it. Bio-Synthetica Pro fixes that.
 
 ---
 
@@ -38,20 +34,20 @@ LLMs confidently generate lab protocols that would destroy real equipment. They 
 
 | Challenge | What It Means |
 |---|---|
-| Partial Observability | Agent cannot see any well. Must `scan()` to reveal — enforced by constraint engine |
+| Partial Observability | Agent cannot see any well. Must `scan()` to reveal - enforced by constraint engine |
 | Dynamic Replanning | Mid-episode contamination alerts force protocol adaptation without restarting |
 | Multi-Objective | Must reach target concentration AND stay within reagent budget simultaneously |
 
 ---
 
-## Partial Observability — How It Works
+## Partial Observability - How It Works
 
 The agent starts with **zero visibility**. All 16 wells are hidden:
 
 ```python
-# Initial state — agent sees nothing
+# Initial state - agent sees nothing
 {
-  "scanned_wells": [],          # empty — no visibility
+  "scanned_wells": [],          # empty - no visibility
   "hidden_wells": ["A1","A2","A3","A4",
                    "B1","B2","B3","B4",
                    "C1","C2","C3","C4",
@@ -65,7 +61,7 @@ The agent starts with **zero visibility**. All 16 wells are hidden:
 # Agent attempts (wrong)
 pipette("A1", "B1", volume=50)
 
-# Simulator response — enforced by lab_simulator.py
+# Simulator response - enforced by lab_simulator.py
 {
   "success": False,
   "violations": [
@@ -87,7 +83,7 @@ pipette("A1", "B1", volume=50)   # ✅ now succeeds
 # Reward contribution: +0.3 (no violations)
 ```
 
-This is **genuine partial observability** — not prompt-level masking, but enforced by `LabSimulator.pipette()` which checks `scanned_wells` before every operation. The trained agent learns to scan only what it needs, trading scan cost against step efficiency.
+This is **genuine partial observability** - not prompt-level masking, but enforced by `LabSimulator.pipette()` which checks `scanned_wells` before every operation. The trained agent learns to scan only what it needs, trading scan cost against step efficiency.
 
 ---
 
@@ -133,7 +129,7 @@ report_complete()                # end episode
 |---|---|
 | Model | Llama-3.1-8B (4-bit, Unsloth) |
 | Algorithm | GRPO (Group Relative Policy Optimization) |
-| Hardware | T4 GPU — Google Colab free tier |
+| Hardware | T4 GPU (Kaggle) |
 | Steps | 1 000 |
 | Batch size | 4 · Group size: 8 |
 | Learning rate | 2e-5 |
@@ -142,7 +138,7 @@ report_complete()                # end episode
 
 ## Results
 
-### Master Comparison — Untrained vs Trained
+### Master Comparison - Untrained vs Trained
 
 ![Master Comparison](plots/master_comparison.png)
 *Red zones/lines = untrained baseline (first 50 episodes). Green lines = trained agent (last 50 episodes). Green boxes = improvement delta.*
@@ -159,27 +155,27 @@ report_complete()                # end episode
 <details>
 <summary>📊 Individual training curves (click to expand)</summary>
 
-**Episode Reward** — climbs from −0.1 → +1.6
+**Episode Reward** - climbs from −0.1 → +1.6
 
 ![Episode Reward](plots/episode_reward.png)
 
-**Constraint Violations** — drops from 4 per episode → near 0
+**Constraint Violations** - drops from 4 per episode → near 0
 
 ![Constraint Violations](plots/constraint_violations.png)
 
-**Goal Achievement** — rises from 8% → 74%
+**Goal Achievement** - rises from 8% → 74%
 
 ![Goal Achievement](plots/goal_achievement.png)
 
-**Syntax Pass Rate** — rises from 30% → 97%
+**Syntax Pass Rate** - rises from 30% → 97%
 
 ![Syntax Pass Rate](plots/syntax_pass_rate.png)
 
-**Budget Efficiency** — rises from 0.40 → 0.83
+**Budget Efficiency** - rises from 0.40 → 0.83
 
 ![Budget Efficiency](plots/budget_efficiency.png)
 
-**Replanning Success** — rises from 10% → 61%
+**Replanning Success** - rises from 10% → 61%
 
 ![Replanning Success](plots/replanning_success.png)
 
@@ -211,7 +207,7 @@ report_complete()
 ```
 bio-synthetica-pro/
 ├── environment/
-│   ├── lab_simulator.py          # Physics engine — all constraints enforced here
+│   ├── lab_simulator.py          # Physics engine - all constraints enforced here
 │   ├── observation_generator.py  # Partial obs + noise + goal generation
 │   └── bio_synthetica_env.py     # OpenEnv Environment subclass
 ├── training/
@@ -224,7 +220,7 @@ bio-synthetica-pro/
 │   ├── app.py                    # HuggingFace Space (self-contained)
 │   └── requirements.txt
 ├── plots/                        # Training curves + master comparison
-├── train_grpo.ipynb              # 📓 Colab notebook (re-runnable on T4)
+├── train_grpo_kaggle.ipynb       # Kaggle training notebook (source of truth)
 ├── generate_plots.py             # Reproduces individual plots
 ├── generate_master_plot.py       # Reproduces master_comparison.png
 └── openenv.yaml                  # OpenEnv manifest
@@ -238,7 +234,7 @@ cd bio-synthetica
 pip install -r requirements.txt
 python demo/app.py          # local Gradio demo
 python training/eval.py     # baseline evaluation
-# Full training → open train_grpo.ipynb in Colab (T4 GPU)
+# Full training: use train_grpo_kaggle.ipynb on Kaggle (T4 GPU) or import from GitHub
 ```
 
 ## OpenEnv Compliance
@@ -252,10 +248,10 @@ python training/eval.py     # baseline evaluation
 
 Every robotics lab and biotech startup needs AI that understands physical constraints. Bio-Synthetica Pro is the first RL benchmark for training exactly that capability.
 
-## Team — OpenEnv Hackathon India 2026
+## Team - OpenEnv Hackathon India 2026
 
 | GitHub | Contribution |
 |---|---|
-| [Prantik-07](https://github.com/Prantik-07) | Environment design — lab simulator, OpenEnv wrapper |
-| [shivaansh0610-LUFFY](https://github.com/shivaansh0610-LUFFY) | Training pipeline — GRPO, reward calculator, eval |
+| [Prantik-07](https://github.com/Prantik-07) | Environment design - lab simulator, OpenEnv wrapper |
+| [shivaansh0610-LUFFY](https://github.com/shivaansh0610-LUFFY) | Training pipeline - GRPO, reward calculator, eval |
 | [ZehaanArshad](https://github.com/ZehaanArshad) | Demo, blog, README, HF Space |

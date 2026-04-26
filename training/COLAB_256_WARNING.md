@@ -7,7 +7,7 @@ TRL’s `GRPOTrainer` **does not** take `generate_kwargs=...`. If you add it, Py
 **Fix:** **Delete** this line from your `GRPOTrainer(...)` call:
 
 ```python
-generate_kwargs={"max_new_tokens": 512},  # DELETE — not a real TRL argument
+generate_kwargs={"max_new_tokens": 512},  # DELETE - not a real TRL argument
 ```
 
 ## 2. Set length only on `GRPOConfig` (and re-run the cell)

@@ -1,10 +1,10 @@
-# Bio-Synthetica Pro — Submission Writeup
+# Bio-Synthetica Pro - Submission Writeup
 
 **OpenEnv Hackathon India 2026** · Theme: World Modeling + Long Horizon Planning
 
 ---
 
-## Problem — What capability gap are we targeting?
+## Problem - What capability gap are we targeting?
 
 Ask any frontier LLM to write a lab automation protocol and it confidently produces code that would destroy real equipment.
 
@@ -13,18 +13,18 @@ Here is Claude 3.5 Sonnet, unprompted:
 ```python
 # Claude-generated protocol (untrained)
 pipette("A1", "B1", volume=250)      # ❌ 250ul > 200ul hardware max
-mix("C3", volume=100, repetitions=5) # ❌ C3 was never scanned — null well
+mix("C3", volume=100, repetitions=5) # ❌ C3 was never scanned - null well
 set_temperature("D2", temp=120)      # ❌ 120°C melts the plate (max is 95°C)
 report_complete()
 ```
 
 Three violations. Zero reagent transferred. $5 000 of samples ruined in a real lab.
 
-This is not a knowledge problem — GPT-4 can explain PCR and pipetting in detail. It is a **training signal problem**. No RL environment has ever penalised an LLM for overflowing a well, using a contaminated sample, or operating on a hidden well. Bio-Synthetica Pro is the first environment that does.
+This is not a knowledge problem - GPT-4 can explain PCR and pipetting in detail. It is a **training signal problem**. No RL environment has ever penalised an LLM for overflowing a well, using a contaminated sample, or operating on a hidden well. Bio-Synthetica Pro is the first environment that does.
 
 ---
 
-## Environment — What does the agent see, do, and get rewarded for?
+## Environment - What does the agent see, do, and get rewarded for?
 
 ### What the agent sees
 
@@ -66,7 +66,7 @@ mix("B2", volume=60, repetitions=3)
 report_complete()
 ```
 
-The simulator parses this, executes each call against the physics engine, and enforces every constraint in `lab_simulator.py`. There is no prompt-level masking — unscanned wells cause hard violations in code.
+The simulator parses this, executes each call against the physics engine, and enforces every constraint in `lab_simulator.py`. There is no prompt-level masking - unscanned wells cause hard violations in code.
 
 ### Three things that make this genuinely hard
 
@@ -87,7 +87,7 @@ Between steps 3 and 7, a contamination alert fires with 30% probability:
 ACTIVE ALERT: Well B2 is contaminated. Avoid it.
 ```
 
-The agent cannot restart. It must reroute mid-protocol to a clean well. This is long-horizon planning under surprise — exactly what real lab robots encounter.
+The agent cannot restart. It must reroute mid-protocol to a clean well. This is long-horizon planning under surprise - exactly what real lab robots encounter.
 
 **3. Multi-Objective Reward.**
 Enzymes cost $2.50/ul. Buffer costs $0.10/ul. The agent must hit its target concentration *and* minimise cost. It cannot greedily pipette expensive reagents without losing budget points.
@@ -106,11 +106,11 @@ Enzymes cost $2.50/ul. Buffer costs $0.10/ul. The agent must hit its target conc
 
 ---
 
-## Results — What changed after training?
+## Results - What changed after training?
 
-We trained Llama-3.1-8B (4-bit quantised via Unsloth) using GRPO on a free Google Colab T4 GPU for 1 000 episodes.
+We trained Llama-3.1-8B (4-bit quantised via Unsloth) using GRPO on a Kaggle T4 GPU (see linked notebook).
 
-### Master comparison — all 6 metrics
+### Master comparison - all 6 metrics
 
 ![Master Comparison](plots/master_comparison.png)
 *Red dashed line = untrained baseline. Coloured line = trained agent. Arrow = improvement.*
@@ -133,13 +133,13 @@ The agent learned in a predictable curriculum that mirrors how a human student w
 1. **Steps 0–100:** Syntax compliance first. The model stops generating broken Python.
 2. **Steps 100–300:** Scan discipline. The model learns to call `scan()` before every well.
 3. **Steps 300–600:** Goal-directed planning. The model learns which wells to use and in what volumes.
-4. **Steps 600–1000:** Replanning. The hardest skill — the model learns to reroute around contamination alerts.
+4. **Steps 600–1000:** Replanning. The hardest skill - the model learns to reroute around contamination alerts.
 
 ### Before vs after (same task)
 
 **Before training:**
 ```python
-# Episode 1 — untrained agent
+# Episode 1 - untrained agent
 pipette("A1", "B2", volume=250)
 mix("C3", volume=100, repetitions=5)
 report_complete()
@@ -148,7 +148,7 @@ report_complete()
 
 **After training:**
 ```python
-# Episode 1000 — trained agent
+# Episode 1000 - trained agent
 scan("A1")
 scan("B2")
 pipette("A1", "B2", volume=100)
@@ -159,7 +159,7 @@ report_complete()
 
 ---
 
-## Why it matters — who would care?
+## Why it matters - who would care?
 
 **Biotech labs** using Opentrons, Tecan, or Hamilton liquid-handling robots increasingly want LLM co-pilots that can draft protocols from natural language. Today those LLMs are unreliable because they were never trained on the physics of lab work. Bio-Synthetica Pro is the training environment that closes that gap.
 
@@ -168,7 +168,7 @@ report_complete()
 - Long-horizon planning with mid-episode surprises  
 - Multi-objective reward under resource constraints
 
-**The broader point:** Bio-Synthetica Pro shows that an LLM does not need to be retrained on domain data to become safe in a new domain — it just needs an RL environment that enforces the right constraints. The same approach could be applied to surgical robotics, chemical synthesis, and any domain where physical violations are costly and irreversible.
+**The broader point:** Bio-Synthetica Pro shows that an LLM does not need to be retrained on domain data to become safe in a new domain - it just needs an RL environment that enforces the right constraints. The same approach could be applied to surgical robotics, chemical synthesis, and any domain where physical violations are costly and irreversible.
 
 ---
 
@@ -177,7 +177,8 @@ report_complete()
 | | |
 |---|---|
 | 🤗 Live Demo | https://huggingface.co/spaces/Luffy0610/bio-synthetica-pro |
-| 📓 Colab Notebook | https://colab.research.google.com/github/Prantik-07/bio-synthetica/blob/main/train_grpo.ipynb |
+| Training (Kaggle) | https://www.kaggle.com/code/shivaanshpandey/notebookc00610413e |
+| Notebook source (GitHub) | https://github.com/Prantik-07/bio-synthetica/blob/main/train_grpo_kaggle.ipynb |
 | 💻 GitHub | https://github.com/Prantik-07/bio-synthetica |
 
 *Built at OpenEnv Hackathon India 2026 by Prantik-07, shivaansh0610-LUFFY, and ZehaanArshad.*

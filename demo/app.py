@@ -98,7 +98,7 @@ Budget Used: ${info['budget_used']:.2f}
 with gr.Blocks(title="Bio-Synthetica Pro") as demo:
     gr.Markdown("# Bio-Synthetica Pro 🧬")
     gr.Markdown(
-        "### Teaching AI to Think Like a Scientist — Under Real Constraints"
+        "### Teaching AI to Think Like a Scientist - Under Real Constraints"
     )
 
     with gr.Row():

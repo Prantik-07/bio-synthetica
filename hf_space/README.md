@@ -8,7 +8,7 @@ sdk_version: "4.44.0"
 app_file: app.py
 pinned: true
 license: mit
-short_description: OpenEnv RL env — GRPO-trained LLMs write valid Opentrons lab protocols
+short_description: OpenEnv RL env - GRPO-trained LLMs write valid Opentrons lab protocols
 tags:
   - reinforcement-learning
   - openenv
@@ -19,7 +19,7 @@ tags:
 
 # Bio-Synthetica Pro
 
-**OpenEnv Hackathon India 2026** — Teaching an LLM to write **physically valid** Opentrons OT-2 protocols under **partial observability**, **dynamic contamination alerts**, and a **multi-objective reward**.
+**OpenEnv Hackathon India 2026** - Teaching an LLM to write **physically valid** Opentrons OT-2 protocols under **partial observability**, **dynamic contamination alerts**, and a **multi-objective reward**.
 
 ## Hugging Face Space (this page)
 
@@ -29,30 +29,29 @@ tags:
 
 Built on **[OpenEnv](https://github.com/openenv/openenv)** (`Environment`: `reset` / `step` / `state`). The simulator enforces scans before well use, volume limits, temperature bounds, contamination, and budget.
 
-## Training (re-runnable)
+## Training (re-runnable on Kaggle)
 
 | Platform | Link |
 |----------|------|
-| Colab | [train_grpo.ipynb](https://colab.research.google.com/github/Prantik-07/bio-synthetica/blob/main/train_grpo.ipynb) |
 | Kaggle (team notebook) | [notebook on Kaggle](https://www.kaggle.com/code/shivaanshpandey/notebookc00610413e) |
-| All-in-one Kaggle `.ipynb` (GitHub) | [train_grpo_kaggle.ipynb](https://github.com/Prantik-07/bio-synthetica/blob/main/train_grpo_kaggle.ipynb) |
+| All-in-one notebook (GitHub) | [train_grpo_kaggle.ipynb](https://github.com/Prantik-07/bio-synthetica/blob/main/train_grpo_kaggle.ipynb) |
 
 **Stack:** Unsloth + **TRL GRPO**, Llama 3.x 4-bit, W&B logging.
 
-## Evidence of training
+## Training evidence
 
-- **Weights & Biases:** [project `huggingface`](https://wandb.ai/shivaansh0610-polaris-school-of-technology/huggingface)
-- **Plots (GitHub, no large files in Space):** [plots folder](https://github.com/Prantik-07/bio-synthetica/tree/main/plots) · [master comparison PNG](https://raw.githubusercontent.com/Prantik-07/bio-synthetica/main/plots/master_comparison.png)
+Judges can verify training via **W&B metrics** (curves per run) and **static plots** in the GitHub repo (no need to upload images to this Space).
 
-## Write-ups & links
+- **W&B:** [project `huggingface`](https://wandb.ai/shivaansh0610-polaris-school-of-technology/huggingface)
+- **Plots on GitHub:** [plots folder](https://github.com/Prantik-07/bio-synthetica/tree/main/plots), [master comparison PNG](https://raw.githubusercontent.com/Prantik-07/bio-synthetica/main/plots/master_comparison.png)
+
+## Write-ups and links
 
 | | |
 |--|--|
 | **GitHub repo** | https://github.com/Prantik-07/bio-synthetica |
 | **Full writeup** | [writeup.md](https://github.com/Prantik-07/bio-synthetica/blob/main/writeup.md) |
 | **Mini-blog (this Space)** | **[Blog.MD](./Blog.MD)** |
-| **Video** | *Public YouTube URL in GitHub README when published* |
-| **Judge rubric** | [Google Doc](https://docs.google.com/document/d/1Odznuzwtb1ecDOm2t6ToZd4MuMXXfO6vWUGcxbC6mFs/edit?tab=t.0#bookmark=kix.2dz0x0nie3me) |
 
 ## Files in this Space
 
@@ -63,4 +62,4 @@ Built on **[OpenEnv](https://github.com/openenv/openenv)** (`Environment`: `rese
 | `Blog.MD` | Round-2 mini-blog |
 | `README.md` | This card (YAML + description) |
 
-Training code and notebooks stay on **GitHub / Colab / Kaggle** to keep the Space small, per organizer guidance.
+Training code and notebooks stay on **GitHub and Kaggle** to keep the Space small.
